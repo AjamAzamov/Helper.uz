@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Helper.uz</title>
+    <style type="text/css">
+        html {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Times New Roman", Times, serif;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: inherit;
+        }
+
+        .root {
+            padding-top: 15px;
+        }
+
+        .title {
+            color: rgb(6, 105, 105);
+            text-align: center;
+        }
+
+        .boxes {
+            display: flex;
+            justify-content: space-between;
+            padding-left: 100px;
+            padding-right: 100px;
+        }
+
+        .box {
+            display: flex;
+            flex-direction: column;
+            width: 550px;
+            height: 550px;
+        }
+
+        .box__inner {
+            border: 2px solid teal;
+            border-radius: 4px;
+        }
+
+        .box__img {
+            width: 550px;
+            height: 500px;
+        }
+
+        .box__textarea {
+            width: 100%;
+            height: 100%;
+            resize: vertical;
+            font-size: 16px;
+            padding: 7px;
+            font-family: "Times New Roman", Times, serif;
+        }
+
+        .labels {
+            display: flex;
+            padding-top: 50px;
+            padding-bottom: 20px;
+            justify-content: space-evenly;
+        }
+
+        .labels>* {
+            background-color: #ccc;
+        }
+
+        .file-label,
+        .button {
+            cursor: pointer;
+            color: white;
+            background-color: teal;
+            border: none;
+            width: 140px;
+            padding: 7px;
+            font-size: 15px;
+            border-radius: 4px;
+            font-family: Arial, serif;
+            transition: 0.1s transform ease-out;
+        }
+
+        .file-label:hover,
+        .button:hover {
+            transform: scale(1.05);
+        }
+
+        .text {
+            font-size: 18px;
+            color: rgb(13, 109, 109);
+        }
+
+        label {
+            text-align: center;
+        }
+
+        @media (max-width: 1350px) {
+            .boxes {
+                padding-left: 75px;
+                padding-right: 75px;
+            }
+        }
+
+        @media (max-width: 1300px) {
+            .boxes {
+                padding-left: 50px;
+                padding-right: 50px;
+            }
+        }
+
+        @media (max-width: 1250px) {
+            .boxes {
+                padding-left: 40px;
+                padding-right: 40px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .boxes {
+                padding-left: 40px;
+                padding-right: 40px;
+            }
+
+            .box {
+                width: 48%;
+            }
+
+            .box__img {
+                width: 100%;
+                height: 100%;
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .box {
+                height: 500px;
+            }
+        }
+
+        @media (max-width: 1000px) {
+            .box {
+                height: 450px;
+            }
+        }
+
+        @media (max-width: 860px) {
+            .boxes {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .box {
+                width: 550px;
+                height: 550px;
+            }
+        }
+
+        @media (max-width: 690px) {
+            .box {
+                width: 90%;
+                height: 500px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .box {
+                width: 95%;
+                height: 470px;
+            }
+
+            .labels {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .box {
+                height: 450px;
+            }
+
+            .file-label,
+            .button {
+                width: 130px;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .box {
+                width: 100%;
+                height: 400px;
+            }
+
+            .labels {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .file-label,
+            .button {
+                width: 140px;
+                margin-bottom: 15px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .boxes {
+                padding-left: 25px;
+                padding-right: 25px;
+            }
+
+            .box {
+                height: 350px;
+            }
+        }
+
+        @media (max-width: 350px) {
+            .boxes {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+
+            .box {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="root">
+        <h1 class="title">Extract Text From Image</h1>
+        <div class="boxes">
+            <div class="box">
+                <p class="img__text"><b class="text">Uploaded image</b></p>
+                <img id="output" class="box__img box__inner" />
+            </div>
+            <div class="box">
+                <p class="img__text"><b class="text">Detected Text</b></p>
+                <textarea class="box__textarea box__inner" id="Text" name="name" rows="500" cols="500"> </textarea>
+            </div>
+        </div>
+        <div class="labels">
+            <input type="file" accept="image/*" name="image" id="file" onchange="loadFile(event)"
+                style="display: none" />
+            <label class="file-label" for="file">Upload Image</label>
+            <button class="button" onclick="getResult()" type="button">Check</button>
+            <button class="button" onclick="download()" type="button">Download Text</button>
+        </div>
+    </div>
+    <a id="downloadtag" hidden download></a>
+</body>
+
+</html>
+
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script>
+    let image_path, image_result
+
+    function getExtr(text) {
+        let ext = '';
+
+        for (const i of text) {
+            if (i == '.') {
+                ext = ''
+            }
+            ext += i;
+        }
+        return ext;
+    }
+
+    async function uploadImage(file) {
+        try {
+            const form = new FormData();
+            const ext = getExtr(file.name);
+            const file_name = `${new Date().getTime()}${ext}`;
+            form.append('image', file, file_name);
+            const result = await axios.post(`/uploads`, form);
+            image_path = result.data;
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
+
+    function loadFile(event) {
+        const image = document.getElementById("output");
+        image.src = URL.createObjectURL(event.target.files[0]);
+        uploadImage(event.target.files[0]);
+    }
+
+    async function getResult() {
+        try {
+            const result = await axios.get(image_path);
+            image_result = result.data;
+            const area = document.getElementById('Text');
+            area.value = image_result;
+        }
+        catch (error) {
+            console.log('Error')
+            console.log(error)
+        }
+    }
+
+    async function download() {
+        try {
+            const area = document.getElementById('Text');
+            const form = new FormData();
+            const docname = `${new Date().getTime()}.docx`;
+            form.append('docname',docname );
+            form.append('data', area.value);
+            const result = await axios.post(`/save`, form);
+
+
+            document.getElementById('downloadtag').href=result.data;
+            document.getElementById('downloadtag').click();
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
+
+</script>

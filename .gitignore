@@ -1,0 +1,8 @@
+
+venv
+Tesseract-OCR
+uploads
+app/static
+app/__pycache__
+.vscode
+__pycache__
